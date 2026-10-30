@@ -1,0 +1,407 @@
+<!-- employee-dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Field Maintenance Dashboard - JalNetra Staff</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --hero-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --bg-body: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius-btn: 9999px;
+      --radius-card: 12px;
+      --success: #16a34a;
+      --warning: #ca8a04;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 40px; }
+
+    header {
+      background-color: #0f172a;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .logo { color: #ffffff; font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+    .logo span { color: var(--primary); }
+
+    .header-actions { display: flex; align-items: center; gap: 15px; }
+
+    .notif-btn {
+      position: relative;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-count {
+      background-color: #ef4444;
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      font-weight: 700;
+    }
+
+    .btn-logout {
+      background-color: #64748b;
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: var(--radius-btn);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background-color: #475569; }
+
+    .hero {
+      background: var(--hero-bg);
+      color: #ffffff;
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+    .hero h1 { font-size: 1.8rem; font-weight: 800; }
+    .hero p { color: #94a3b8; font-size: 0.95rem; margin-top: 4px; }
+
+    .container { max-width: 950px; margin: 30px auto; padding: 0 20px; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.85rem; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: var(--radius-btn);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-submit:hover { background-color: var(--primary-hover); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+    table th, table td { padding: 10px; border: 1px solid var(--border-color); text-align: left; }
+    table th { background-color: #f1f5f9; }
+
+    .btn-action {
+      background-color: #f1f5f9;
+      color: var(--primary);
+      border: 1px solid var(--border-color);
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-action:hover { background-color: #e0e7ff; }
+
+    .badge-status {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      display: inline-block;
+    }
+    .status-pending { background-color: #fef3c7; color: #b45309; }
+    .status-progress { background-color: #e0e7ff; color: #3730a3; }
+    .status-resolved { background-color: #dcfce7; color: #15803d; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">Home</a>
+    <div class="header-actions">
+      <button class="notif-btn" id="toggleTasksBtn">
+        Tasks Alert <span class="badge-count" id="taskAlertCount">0</span>
+      </button>
+      <button id="logoutBtn" class="btn-logout">Logout</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Staff Dashboard</h1>
+    <p id="userEmailDisplay">Logged in as: Loading...</p>
+  </section>
+
+  <div class="container">
+
+    <!-- Assigned Grievances & Work Orders Card -->
+    <div class="card">
+      <h3>Assigned Grievances & Work Orders</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Ref Number</th>
+              <th>Category</th>
+              <th>Landmark / Location</th>
+              <th>Current Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="assignedTasksTable">
+            <tr><td colspan="5">Loading assigned tasks...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- On-Site Water Testing Inspection Card -->
+    <div class="card">
+      <h3>Log Field Water Quality Sample</h3>
+      <form id="fieldTestForm">
+        <div class="form-grid">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Sampling Station / Location</label>
+            <input type="text" id="ftStation" placeholder="e.g. Ward 8 Distribution Valve" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Parameter Tested</label>
+            <select id="ftParam">
+              <option value="pH Level">pH Level</option>
+              <option value="Residual Chlorine">Residual Chlorine (mg/L)</option>
+              <option value="Turbidity">Turbidity (NTU)</option>
+              <option value="TDS">TDS (ppm)</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Measured Value & Unit</label>
+            <input type="text" id="ftValue" placeholder="e.g. 7.4 pH or 0.5 mg/L" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit" style="margin-top: 10px;">Submit Field Test Record</button>
+      </form>
+    </div>
+
+    <!-- Inventory & Equipment Check Card -->
+    <div class="card">
+      <h3>Available Field Inventory & Equipment</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Resource Name</th>
+              <th>Category</th>
+              <th>Quantity Available</th>
+              <th>Depot Location</th>
+            </tr>
+          </thead>
+          <tbody id="fieldResourcesTable">
+            <tr><td colspan="4">Loading available resources...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { auth, db, signOut, onAuthStateChanged, collection, getDocs, addDoc, updateDoc, doc, query, where, serverTimestamp } from './firebase.js';
+
+    let activeUserEmail = null;
+
+    // Auth state check
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.assign('employee-login.html');
+      } else {
+        activeUserEmail = user.email;
+        document.getElementById('userEmailDisplay').innerText = `Logged in as: ${user.email}`;
+        
+        loadAssignedTasks();
+        loadResources();
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.assign('employee-login.html');
+    });
+
+    // --- LOAD ASSIGNED COMPLAINTS/WORK ORDERS ---
+    async function loadAssignedTasks() {
+      const table = document.getElementById('assignedTasksTable');
+      table.innerHTML = "";
+
+      try {
+        const q = query(
+          collection(db, "complaints"),
+          where("assigned_to", "==", activeUserEmail)
+        );
+
+        const snap = await getDocs(q);
+        document.getElementById('taskAlertCount').innerText = snap.size;
+
+        if (snap.empty) {
+          table.innerHTML = "<tr><td colspan='5'>No maintenance tasks currently assigned to you.</td></tr>";
+          return;
+        }
+
+        snap.forEach(d => {
+          const item = d.data();
+          
+          let statusBadgeClass = "status-pending";
+          if (item.status === "Work in Progress") statusBadgeClass = "status-progress";
+          if (item.status === "Resolved" || item.status === "Closed") statusBadgeClass = "status-resolved";
+
+          table.innerHTML += `
+            <tr>
+              <td><strong>${item.reference_number || d.id}</strong></td>
+              <td>${item.category || 'General Repair'}</td>
+              <td>${item.landmark || 'N/A'}</td>
+              <td><span class="badge-status ${statusBadgeClass}">${item.status || 'Assigned'}</span></td>
+              <td>
+                <button class="btn-action" onclick="window.updateWorkStatus('${d.id}', '${item.status}')">Update Status</button>
+              </td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        table.innerHTML = `<tr><td colspan='5' style='color: red;'>Error loading tasks: ${err.message}</td></tr>`;
+      }
+    }
+
+    // --- WORK ORDER STATUS UPDATE HANDLER ---
+    window.updateWorkStatus = async (taskId, currentStatus) => {
+      const newStatus = prompt("Select new status (Work in Progress, Resolved):", currentStatus);
+      const fieldNote = prompt("Enter field note / action taken (required):");
+
+      if (!newStatus || !fieldNote) {
+        alert("Status update and field notes are mandatory.");
+        return;
+      }
+
+      try {
+        // Update main complaint document
+        await updateDoc(doc(db, "complaints", taskId), {
+          status: newStatus,
+          last_updated_by: activeUserEmail
+        });
+
+        // Add history timeline log
+        await addDoc(collection(db, "complaints", taskId, "history"), {
+          previous_status: currentStatus,
+          new_status: newStatus,
+          note: `[Field Staff Note]: ${fieldNote.trim()}`,
+          updated_by: activeUserEmail,
+          timestamp: serverTimestamp()
+        });
+
+        alert("Work order status updated successfully!");
+        loadAssignedTasks();
+      } catch (err) {
+        alert("Failed to update work order: " + err.message);
+      }
+    };
+
+    // --- SUBMIT FIELD WATER TEST RECORD ---
+    document.getElementById('fieldTestForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const station = document.getElementById('ftStation').value.trim();
+      const param = document.getElementById('ftParam').value;
+      const val = document.getElementById('ftValue').value.trim();
+
+      const rawVal = val.split(' ');
+
+      try {
+        await addDoc(collection(db, "quality_readings"), {
+          station_name: station,
+          parameter_name: param,
+          value: rawVal[0] || val,
+          unit: rawVal[1] || "",
+          verification_status: "Field Verified",
+          recorded_by: activeUserEmail,
+          timestamp: serverTimestamp()
+        });
+
+        alert("Field water quality reading recorded!");
+        e.target.reset();
+      } catch (err) {
+        alert("Failed to record field reading: " + err.message);
+      }
+    });
+
+    // --- LOAD RESOURCES FOR FIELD STAFF ---
+    async function loadResources() {
+      const table = document.getElementById('fieldResourcesTable');
+      table.innerHTML = "";
+
+      try {
+        const snap = await getDocs(collection(db, "resources"));
+        if (snap.empty) {
+          table.innerHTML = "<tr><td colspan='4'>No equipment or resources listed.</td></tr>";
+          return;
+        }
+
+        snap.forEach(d => {
+          const r = d.data();
+          table.innerHTML += `
+            <tr>
+              <td><strong>${r.name}</strong></td>
+              <td>${r.category}</td>
+              <td>${r.quantity}</td>
+              <td>${r.location}</td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        table.innerHTML = `<tr><td colspan='4' style='color: red;'>Failed to load resources: ${err.message}</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>

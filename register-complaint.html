@@ -1,0 +1,144 @@
+<!-- register-complaint.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Complaint - JalNetra</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --hero-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --bg-body: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius-btn: 9999px;
+      --radius-card: 12px;
+      --success: #16a34a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 40px; }
+
+    header { background-color: #0f172a; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .logo { color: #ffffff; font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+    .logo span { color: var(--primary); }
+    nav { display: flex; gap: 15px; align-items: center; }
+    nav a { color: #cbd5e1; text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+
+    .hero { background: var(--hero-bg); color: #ffffff; text-align: center; padding: 3rem 1.5rem; }
+    .hero h1 { font-size: 2rem; font-weight: 800; }
+
+    .container { max-width: 650px; margin: 30px auto; padding: 0 20px; }
+    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-card); padding: 25px; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.85rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.9rem; outline: none; }
+    .form-group input:focus { border-color: var(--primary); }
+
+    .btn-submit { width: 100%; background-color: var(--primary); color: white; border: none; padding: 12px; border-radius: var(--radius-btn); font-weight: 600; cursor: pointer; }
+    .btn-submit:hover { background-color: var(--primary-hover); }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">Home</a>
+  </header>
+
+  <section class="hero">
+    <h1>Register Issue</h1>
+    <p style="color: #94a3b8; font-size: 0.95rem;">Report your issues and get resolved.</p>
+  </section>
+
+  <div class="container">
+    <div class="card" id="formCard">
+      <form id="complaintForm">
+        <div class="form-group">
+          <label>Select Authority</label>
+          <select id="authSelect" required><option value="">Loading authorities...</option></select>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="category" required>
+            <option value="Pipeline leakage">Pipeline leakage</option>
+            <option value="No supply">No supply</option>
+            <option value="Low pressure">Low pressure</option>
+            <option value="Water quality concern">Water quality concern</option>
+            <option value="Damaged pipeline">Damaged pipeline</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea id="description" rows="3" placeholder="Provide issue details..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Address / Landmark</label>
+          <input type="text" id="address" placeholder="e.g. Near Block B Gate 3" required>
+        </div>
+        <div class="form-group">
+          <label>Your Name (Private)</label>
+          <input type="text" id="citizenName" placeholder="Full Name" required>
+        </div>
+        <div class="form-group">
+          <label>Phone Number (Private)</label>
+          <input type="tel" id="citizenPhone" placeholder="Mobile Number" required>
+        </div>
+        <button type="submit" class="btn-submit">Submit Complaint</button>
+      </form>
+    </div>
+
+    <div class="card" id="successCard" style="display: none; text-align: center;">
+      <h2 style="color: var(--success); font-size: 1.5rem; margin-bottom: 10px;">Complaint Submitted!</h2>
+      <p style="font-size: 0.9rem; color: var(--text-muted);">Your reference tracking number is:</p>
+      <div id="refDisplay" style="font-size: 1.8rem; font-weight: 800; color: var(--primary); margin: 15px 0;"></div>
+      <a href="track-complaint.html" class="btn-submit" style="display: inline-block; width: auto; padding: 10px 24px; text-decoration: none;">Track Status</a>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db, collection, addDoc, getDocs, serverTimestamp } from './firebase.js';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const authSelect = document.getElementById('authSelect');
+      const snap = await getDocs(collection(db, "authorities"));
+      authSelect.innerHTML = '<option value="">-- Select Water Authority --</option>';
+      snap.forEach(d => {
+        authSelect.innerHTML += `<option value="${d.id}">${d.data().name} (${d.data().city})</option>`;
+      });
+
+      document.getElementById('complaintForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const refNumber = `JN-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
+
+        const docRef = await addDoc(collection(db, "complaints"), {
+          reference_number: refNumber,
+          authority_id: authSelect.value,
+          category: document.getElementById('category').value,
+          description: document.getElementById('description').value,
+          address_landmark: document.getElementById('address').value,
+          citizen_name: document.getElementById('citizenName').value,
+          citizen_phone: document.getElementById('citizenPhone').value,
+          status: "Submitted",
+          created_at: serverTimestamp()
+        });
+
+        await addDoc(collection(db, "complaints", docRef.id, "history"), {
+          previous_status: null,
+          new_status: "Submitted",
+          note: "Complaint successfully registered.",
+          timestamp: serverTimestamp()
+        });
+
+        document.getElementById('formCard').style.display = 'none';
+        document.getElementById('refDisplay').innerText = refNumber;
+        document.getElementById('successCard').style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,934 @@
+<!-- admin-dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authority Dashboard - JalNetra</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --hero-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --bg-body: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius-btn: 9999px;
+      --radius-card: 12px;
+      --success: #16a34a;
+      --warning: #ca8a04;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 40px; }
+
+    header {
+      background-color: #0f172a;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .logo { color: #ffffff; font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+    .logo span { color: var(--primary); }
+
+    .header-actions { display: flex; align-items: center; gap: 15px; }
+
+    .notif-btn {
+      position: relative;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: var(--radius-btn);
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .notif-btn:hover { background: rgba(255, 255, 255, 0.2); }
+    .badge-count {
+      background-color: #ef4444;
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      font-weight: 700;
+    }
+
+    .btn-logout {
+      background-color: #64748b;
+      color: #ffffff;
+      padding: 8px 18px;
+      border-radius: var(--radius-btn);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .btn-logout:hover { background-color: #475569; }
+
+    .hero {
+      background: var(--hero-bg);
+      color: #ffffff;
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+    .hero h1 { font-size: 1.8rem; font-weight: 800; }
+    .hero p { color: #94a3b8; font-size: 0.95rem; margin-top: 4px; }
+
+    .container { max-width: 950px; margin: 30px auto; padding: 0 20px; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .notif-item {
+      padding: 12px;
+      border-bottom: 1px solid #f1f5f9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-title { font-weight: 600; font-size: 0.9rem; color: var(--text-main); }
+    .notif-desc { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+    .notif-time { font-size: 0.75rem; color: #94a3b8; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 0.85rem; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: var(--radius-btn);
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .btn-submit:hover { background-color: var(--primary-hover); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
+    table th, table td { padding: 10px; border: 1px solid var(--border-color); text-align: left; }
+    table th { background-color: #f1f5f9; }
+
+    .btn-action {
+      background-color: #f1f5f9;
+      color: var(--primary);
+      border: 1px solid var(--border-color);
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn-action:hover { background-color: #e0e7ff; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">Jal<span>Netra Admin</span></a>
+    <div class="header-actions">
+      <button class="notif-btn" id="toggleNotifBtn">
+        Notifications <span class="badge-count" id="notifCount">0</span>
+      </button>
+      <button id="logoutBtn" class="btn-logout">Logout</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Authority Admin Dashboard</h1>
+    <p id="userEmailDisplay">Loading active account...</p>
+  </section>
+
+  <div class="container">
+    <!-- Notification Panel Card -->
+    <div class="card" id="notificationPanel" style="display: none;">
+      <h3>
+        Notifications & Activity Log
+        <span style="font-size: 0.75rem; color: var(--text-muted); cursor: pointer;" id="clearNotifBtn">Clear All</span>
+      </h3>
+      <div id="notifContainer">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">No new notifications.</p>
+      </div>
+    </div>
+
+    <!-- Tenders Management Card -->
+    <div class="card">
+      <h3>Active Tenders & Procurements</h3>
+      <form id="tenderForm" style="margin-bottom: 20px;">
+        <div class="form-grid">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Tender Reference No.</label>
+            <input type="text" id="tRef" placeholder="e.g. WSS/2026/TN-04" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Tender Title / Scope</label>
+            <input type="text" id="tTitle" placeholder="e.g. Pipeline Replacement Ward 12" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Estimated Value (INR)</label>
+            <input type="text" id="tValue" placeholder="e.g. ₹25,00,000" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Submission Deadline</label>
+            <input type="date" id="tDeadline" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">Publish Tender Notice</button>
+      </form>
+
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Ref No.</th>
+              <th>Title / Work Scope</th>
+              <th>Est. Value</th>
+              <th>Deadline</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tendersTable">
+            <tr><td colspan="5">Loading tenders...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Ongoing Projects Card -->
+    <div class="card">
+      <h3>Ongoing Infrastructure Projects</h3>
+      <form id="projectForm" style="margin-bottom: 20px;">
+        <div class="form-grid">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Project Title</label>
+            <input type="text" id="pTitle" placeholder="e.g. Sewage Treatment Plant Expansion" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Contractor / Agency</label>
+            <input type="text" id="pContractor" placeholder="e.g. ABC Infra Pvt Ltd" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Completion Stage (%)</label>
+            <input type="number" id="pProgress" placeholder="e.g. 45" min="0" max="100" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Expected Completion</label>
+            <input type="date" id="pTargetDate" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">Add Project Record</button>
+      </form>
+
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Project Name</th>
+              <th>Contractor</th>
+              <th>Progress (%)</th>
+              <th>Target Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="projectsTable">
+            <tr><td colspan="5">Loading projects...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Staff Management Card -->
+    <div class="card">
+      <h3>Staff Directory</h3>
+      <form id="staffForm" style="margin-bottom: 20px;">
+        <div class="form-grid">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Staff Full Name</label>
+            <input type="text" id="staffName" placeholder="e.g. Ramesh Kumar" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Designation / Role</label>
+            <input type="text" id="staffRole" placeholder="e.g. Pipeline Engineer" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Email (Username)</label>
+            <input type="email" id="staffEmail" placeholder="staff@authority.org" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Password</label>
+            <input type="password" id="staffPassword" placeholder="Min 6 characters" minlength="6" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">Add Field Staff</button>
+      </form>
+
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Designation</th>
+              <th>Email</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="staffTable">
+            <tr><td colspan="4">Loading staff records...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Resource Management Card -->
+    <div class="card">
+      <h3>Resource & Inventory Management</h3>
+      <form id="resourceForm" style="margin-bottom: 20px;">
+        <div class="form-grid">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Resource Name</label>
+            <input type="text" id="resName" placeholder="e.g. Water Tanker 5000L" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Category</label>
+            <select id="resCategory">
+              <option value="Vehicle">Vehicle / Tanker</option>
+              <option value="Equipment">Repair Equipment</option>
+              <option value="Testing Kit">Water Testing Kit</option>
+              <option value="Chemicals">Treatment Chemicals</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Quantity</label>
+            <input type="number" id="resQty" placeholder="e.g. 5" min="1" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Location / Unit</label>
+            <input type="text" id="resLocation" placeholder="e.g. Central Depot" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-submit">Add Resource Item</button>
+      </form>
+
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Item Name</th>
+              <th>Category</th>
+              <th>Quantity</th>
+              <th>Depot / Location</th>
+            </tr>
+          </thead>
+          <tbody id="resourceTable">
+            <tr><td colspan="4">Loading resources...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Publish Notice Card -->
+    <div class="card">
+      <h3>Publish Public Notice</h3>
+      <form id="noticeForm">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="nTitle" placeholder="e.g. Scheduled Pipeline Maintenance" required>
+        </div>
+        <div class="form-group">
+          <label>Content</label>
+          <textarea id="nContent" rows="2" placeholder="Details regarding water supply schedules, repairs, etc." required></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Publish Notice</button>
+      </form>
+    </div>
+
+    <!-- Water Quality Card -->
+    <div class="card">
+      <h3>Record Water Quality Reading</h3>
+      <form id="qualityForm">
+        <div class="form-group">
+          <label>Station Name</label>
+          <input type="text" id="qStation" placeholder="e.g. Water Treatment Plant Station A" required>
+        </div>
+        <div class="form-group">
+          <label>Parameter</label>
+          <input type="text" id="qParam" placeholder="e.g. pH Level, Turbidity, Chlorine" required>
+        </div>
+        <div class="form-group">
+          <label>Value & Unit</label>
+          <input type="text" id="qVal" placeholder="e.g. 7.2 pH, 1.8 NTU" required>
+        </div>
+        <div class="form-group">
+          <label>Verification Status</label>
+          <select id="qVerif">
+            <option value="Preliminary">Preliminary</option>
+            <option value="Lab verified">Lab verified</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">Record Reading</button>
+      </form>
+    </div>
+
+    <!-- Complaints Overview Card -->
+    <div class="card">
+      <h3>Grievance Management</h3>
+      <div style="overflow-x: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Ref Number</th>
+              <th>Category</th>
+              <th>Assigned Staff</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="complaintsTable">
+            <tr><td colspan="5">Loading complaints...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, db, signOut, onAuthStateChanged, collection, getDocs, addDoc, updateDoc, doc, query, where, serverTimestamp, createUserWithEmailAndPassword } from './firebase.js';
+
+    let currentAuthorityId = null;
+    let notifications = [];
+
+    // Toggle Notifications
+    const toggleBtn = document.getElementById('toggleNotifBtn');
+    const notifPanel = document.getElementById('notificationPanel');
+    toggleBtn.addEventListener('click', () => {
+      notifPanel.style.display = notifPanel.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('clearNotifBtn').addEventListener('click', () => {
+      notifications = [];
+      renderNotifications();
+    });
+
+    function renderNotifications() {
+      const container = document.getElementById('notifContainer');
+      document.getElementById('notifCount').innerText = notifications.length;
+
+      if (notifications.length === 0) {
+        container.innerHTML = "<p style='font-size: 0.85rem; color: var(--text-muted);'>No new notifications.</p>";
+        return;
+      }
+
+      container.innerHTML = "";
+      notifications.forEach(n => {
+        container.innerHTML += `
+          <div class="notif-item">
+            <div>
+              <div class="notif-title">${n.title}</div>
+              <div class="notif-desc">${n.desc}</div>
+            </div>
+            <div class="notif-time">${n.time}</div>
+          </div>
+        `;
+      });
+    }
+
+    // Auth Protection
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.assign('admin.html');
+      } else {
+        document.getElementById('userEmailDisplay').innerText = `Logged in as: ${user.email}`;
+        
+        try {
+          const q = query(collection(db, "users"), where("email", "==", user.email));
+          const userSnap = await getDocs(q);
+          
+          if (!userSnap.empty) {
+            currentAuthorityId = userSnap.docs[0].data().authority_id;
+          }
+        } catch (e) {
+          console.error("Profile metadata lookup failed.", e);
+        }
+
+        loadTenders();
+        loadProjects();
+        loadStaff();
+        loadResources();
+        loadComplaints();
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.assign('admin.html');
+    });
+
+    // --- TENDERS MANAGEMENT ---
+    document.getElementById('tenderForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const ref = document.getElementById('tRef').value.trim();
+      const title = document.getElementById('tTitle').value.trim();
+      const value = document.getElementById('tValue').value.trim();
+      const deadline = document.getElementById('tDeadline').value;
+
+      try {
+        await addDoc(collection(db, "tenders"), {
+          ref_number: ref,
+          title: title,
+          value: value,
+          deadline: deadline,
+          status: "Open",
+          authority_id: currentAuthorityId || "1",
+          created_at: serverTimestamp()
+        });
+
+        notifications.unshift({
+          title: "Tender Published",
+          desc: `${ref} - ${title}`,
+          time: new Date().toLocaleTimeString()
+        });
+        renderNotifications();
+
+        alert("Tender notice published successfully!");
+        e.target.reset();
+        loadTenders();
+      } catch (err) {
+        alert("Failed to publish tender: " + err.message);
+      }
+    });
+
+    async function loadTenders() {
+      const table = document.getElementById('tendersTable');
+      table.innerHTML = "";
+
+      try {
+        let q = collection(db, "tenders");
+        if (currentAuthorityId) {
+          q = query(collection(db, "tenders"), where("authority_id", "==", currentAuthorityId));
+        }
+
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          table.innerHTML = "<tr><td colspan='5'>No active tenders published yet.</td></tr>";
+          return;
+        }
+
+        snap.forEach(d => {
+          const t = d.data();
+          table.innerHTML += `
+            <tr>
+              <td><strong>${t.ref_number}</strong></td>
+              <td>${t.title}</td>
+              <td>${t.value}</td>
+              <td>${t.deadline}</td>
+              <td><span style="color: var(--success); font-weight: 600;">${t.status || 'Open'}</span></td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        table.innerHTML = `<tr><td colspan='5' style='color: red;'>Error loading tenders: ${err.message}</td></tr>`;
+      }
+    }
+
+    // --- ONGOING PROJECTS ---
+    document.getElementById('projectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('pTitle').value.trim();
+      const contractor = document.getElementById('pContractor').value.trim();
+      const progress = parseInt(document.getElementById('pProgress').value);
+      const targetDate = document.getElementById('pTargetDate').value;
+
+      try {
+        await addDoc(collection(db, "projects"), {
+          title: title,
+          contractor: contractor,
+          progress: progress,
+          target_date: targetDate,
+          authority_id: currentAuthorityId || "1",
+          created_at: serverTimestamp()
+        });
+
+        notifications.unshift({
+          title: "Project Added",
+          desc: `${title} (${progress}% Complete)`,
+          time: new Date().toLocaleTimeString()
+        });
+        renderNotifications();
+
+        alert("Project record added!");
+        e.target.reset();
+        loadProjects();
+      } catch (err) {
+        alert("Failed to add project: " + err.message);
+      }
+    });
+
+    async function loadProjects() {
+      const table = document.getElementById('projectsTable');
+      table.innerHTML = "";
+
+      try {
+        let q = collection(db, "projects");
+        if (currentAuthorityId) {
+          q = query(collection(db, "projects"), where("authority_id", "==", currentAuthorityId));
+        }
+
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          table.innerHTML = "<tr><td colspan='5'>No ongoing projects listed.</td></tr>";
+          return;
+        }
+
+        snap.forEach(d => {
+          const p = d.data();
+          table.innerHTML += `
+            <tr>
+              <td><strong>${p.title}</strong></td>
+              <td>${p.contractor}</td>
+              <td>${p.progress}%</td>
+              <td>${p.target_date}</td>
+              <td><button class="btn-action" onclick="window.updateProgress('${d.id}', ${p.progress})">Update %</button></td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        table.innerHTML = `<tr><td colspan='5' style='color: red;'>Error loading projects: ${err.message}</td></tr>`;
+      }
+    }
+
+    window.updateProgress = async (id, currentProg) => {
+      const newProg = prompt("Enter updated progress percentage (0-100):", currentProg);
+      if (newProg === null || newProg.trim() === "") return;
+
+      const progVal = parseInt(newProg);
+      if (isNaN(progVal) || progVal < 0 || progVal > 100) {
+        alert("Please enter a valid percentage between 0 and 100.");
+        return;
+      }
+
+      try {
+        await updateDoc(doc(db, "projects", id), { progress: progVal });
+        notifications.unshift({
+          title: "Project Progress Updated",
+          desc: `Progress changed to ${progVal}%`,
+          time: new Date().toLocaleTimeString()
+        });
+        renderNotifications();
+        alert("Progress updated successfully!");
+        loadProjects();
+      } catch (err) {
+        alert("Failed to update progress: " + err.message);
+      }
+    };
+
+    // --- STAFF MANAGEMENT ---
+    document.getElementById('staffForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('staffName').value.trim();
+      const role = document.getElementById('staffRole').value.trim();
+      const email = document.getElementById('staffEmail').value.trim();
+      const password = document.getElementById('staffPassword').value.trim();
+
+      try {
+        const userCred = await createUserWithEmailAndPassword(auth, email, password);
+
+        await addDoc(collection(db, "users"), {
+          uid: userCred.user.uid,
+          name: name,
+          email: email,
+          designation: role,
+          role: "field_staff",
+          authority_id: currentAuthorityId || "1",
+          created_at: serverTimestamp()
+        });
+
+        notifications.unshift({
+          title: "New Staff Added",
+          desc: `${name} (${role}) - ${email}`,
+          time: new Date().toLocaleTimeString()
+        });
+        renderNotifications();
+
+        alert("Field staff member registered successfully!");
+        e.target.reset();
+        loadStaff();
+      } catch (err) {
+        alert("Failed to register staff: " + err.message);
+      }
+    });
+
+    async function loadStaff() {
+      const table = document.getElementById('staffTable');
+      table.innerHTML = "";
+
+      try {
+        let q = query(
+          collection(db, "users"), 
+          where("role", "==", "field_staff")
+        );
+
+        if (currentAuthorityId) {
+          q = query(
+            collection(db, "users"), 
+            where("role", "==", "field_staff"),
+            where("authority_id", "==", currentAuthorityId)
+          );
+        }
+
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          table.innerHTML = "<tr><td colspan='4'>No staff members registered yet.</td></tr>";
+          return;
+        }
+
+        snap.forEach(d => {
+          const s = d.data();
+          table.innerHTML += `
+            <tr>
+              <td><strong>${s.name || 'N/A'}</strong></td>
+              <td>${s.designation || 'Staff'}</td>
+              <td>${s.email}</td>
+              <td><span style="color: var(--success); font-weight:600;">Active</span></td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        table.innerHTML = `<tr><td colspan='4' style='color: red;'>Failed to load staff list: ${err.message}</td></tr>`;
+      }
+    }
+
+    // --- RESOURCE MANAGEMENT ---
+    document.getElementById('resourceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('resName').value.trim();
+      const category = document.getElementById('resCategory').value;
+      const qty = parseInt(document.getElementById('resQty').value);
+      const location = document.getElementById('resLocation').value.trim();
+
+      try {
+        await addDoc(collection(db, "resources"), {
+          name: name,
+          category: category,
+          quantity: qty,
+          location: location,
+          authority_id: currentAuthorityId || "1",
+          created_at: serverTimestamp()
+        });
+
+        notifications.unshift({
+          title: "Resource Added",
+          desc: `${qty}x ${name} at ${location}`,
+          time: new Date().toLocaleTimeString()
+        });
+        renderNotifications();
+
+        alert("Resource item added to inventory!");
+        e.target.reset();
+        loadResources();
+      } catch (err) {
+        alert("Failed to add resource: " + err.message);
+      }
+    });
+
+    async function loadResources() {
+      const table = document.getElementById('resourceTable');
+      table.innerHTML = "";
+
+      try {
+        let q = collection(db, "resources");
+        if (currentAuthorityId) {
+          q = query(collection(db, "resources"), where("authority_id", "==", currentAuthorityId));
+        }
+
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          table.innerHTML = "<tr><td colspan='4'>No inventory or resources added yet.</td></tr>";
+          return;
+        }
+
+        snap.forEach(d => {
+          const r = d.data();
+          table.innerHTML += `
+            <tr>
+              <td><strong>${r.name}</strong></td>
+              <td>${r.category}</td>
+              <td>${r.quantity}</td>
+              <td>${r.location}</td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        table.innerHTML = `<tr><td colspan='4' style='color: red;'>Failed to load resources: ${err.message}</td></tr>`;
+      }
+    }
+
+    // --- NOTICES ---
+    document.getElementById('noticeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await addDoc(collection(db, "notices"), {
+          authority_id: currentAuthorityId || "1",
+          title: document.getElementById('nTitle').value.trim(),
+          content: document.getElementById('nContent').value.trim(),
+          created_at: serverTimestamp()
+        });
+        
+        notifications.unshift({
+          title: "Notice Published",
+          desc: document.getElementById('nTitle').value.trim(),
+          time: new Date().toLocaleTimeString()
+        });
+        renderNotifications();
+
+        alert("Notice published successfully!");
+        e.target.reset();
+      } catch (err) {
+        alert("Failed to publish notice: " + err.message);
+      }
+    });
+
+    // --- WATER QUALITY ---
+    document.getElementById('qualityForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const rawVal = document.getElementById('qVal').value.trim().split(' ');
+      try {
+        await addDoc(collection(db, "quality_readings"), {
+          authority_id: currentAuthorityId || "1",
+          station_name: document.getElementById('qStation').value.trim(),
+          parameter_name: document.getElementById('qParam').value.trim(),
+          value: rawVal[0] || "",
+          unit: rawVal[1] || "",
+          verification_status: document.getElementById('qVerif').value,
+          sample_type: "Sample data",
+          timestamp: serverTimestamp()
+        });
+
+        notifications.unshift({
+          title: "Quality Reading Recorded",
+          desc: `${document.getElementById('qParam').value.trim()} - ${document.getElementById('qVal').value.trim()}`,
+          time: new Date().toLocaleTimeString()
+        });
+        renderNotifications();
+
+        alert("Water quality reading recorded!");
+        e.target.reset();
+      } catch (err) {
+        alert("Failed to record quality reading: " + err.message);
+      }
+    });
+
+    // --- COMPLAINTS ---
+    async function loadComplaints() {
+      const table = document.getElementById('complaintsTable');
+      table.innerHTML = "";
+
+      try {
+        let q;
+        if (currentAuthorityId) {
+          q = query(collection(db, "complaints"), where("authority_id", "==", currentAuthorityId));
+        } else {
+          q = collection(db, "complaints");
+        }
+
+        const snap = await getDocs(q);
+        if (snap.empty) {
+          table.innerHTML = "<tr><td colspan='5'>No complaints registered for this authority.</td></tr>";
+          return;
+        }
+
+        snap.forEach(d => {
+          const c = d.data();
+          table.innerHTML += `
+            <tr>
+              <td>${c.reference_number}</td>
+              <td>${c.category}</td>
+              <td>${c.assigned_to || 'Unassigned'}</td>
+              <td><strong>${c.status}</strong></td>
+              <td><button class="btn-action" onclick="window.assignOrUpdate('${d.id}', '${c.status}')">Manage</button></td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        table.innerHTML = `<tr><td colspan='5' style='color: red;'>Error loading complaints: ${err.message}</td></tr>`;
+      }
+    }
+
+    // Action Handler
+    window.assignOrUpdate = async (id, curStatus) => {
+      const assignedTo = prompt("Assign field staff email (optional):");
+      const newStatus = prompt("Enter new status (Received, Under Review, Work in Progress, Resolved, Closed):", curStatus);
+      const note = prompt("Enter progress / reason note (required):");
+
+      if (!newStatus || !note) {
+        alert("Status update and reason note are mandatory.");
+        return;
+      }
+
+      const updateData = { status: newStatus };
+      if (assignedTo) updateData.assigned_to = assignedTo.trim();
+
+      try {
+        await updateDoc(doc(db, "complaints", id), updateData);
+        await addDoc(collection(db, "complaints", id, "history"), {
+          previous_status: curStatus,
+          new_status: newStatus,
+          note: note.trim(),
+          timestamp: serverTimestamp()
+        });
+
+        notifications.unshift({
+          title: `Complaint Updated (${newStatus})`,
+          desc: note.trim(),
+          time: new Date().toLocaleTimeString()
+        });
+        renderNotifications();
+
+        alert("Complaint record updated!");
+        loadComplaints();
+      } catch (err) {
+        alert("Update failed: " + err.message);
+      }
+    };
+  </script>
+</body>
+</html>

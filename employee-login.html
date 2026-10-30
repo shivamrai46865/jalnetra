@@ -1,0 +1,145 @@
+<!-- employee-login.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Field Staff Login - JalNetra</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --hero-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --bg-body: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius-btn: 9999px;
+      --radius-card: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 40px; }
+
+    header {
+      background-color: #0f172a;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .logo { color: #ffffff; font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+    .logo span { color: var(--primary); }
+    .nav-link { color: #cbd5e1; text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+    .nav-link:hover { color: #ffffff; }
+
+    .hero {
+      background: var(--hero-bg);
+      color: #ffffff;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.025em; }
+
+    .container { max-width: 480px; margin: 30px auto; padding: 0 20px; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 32px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 11px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus { border-color: var(--primary); }
+
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: var(--radius-btn);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover { background-color: var(--primary-hover); }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">Home</a>
+  </header>
+
+  <section class="hero">
+    <h1>Field Staff Login</h1>
+  </section>
+
+  <div class="container">
+    <div class="card">
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Employee Email Address</label>
+          <input type="email" id="loginEmail" placeholder="e.g. staff@djb.gov.in" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPass" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" id="loginBtn" class="btn-submit">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { auth, signInWithEmailAndPassword, onAuthStateChanged } from './firebase.js';
+
+    // Route if already authenticated
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.assign('employee-dashboard.html');
+      }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.disabled = true;
+      loginBtn.innerText = "Signing in...";
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const pass = document.getElementById('loginPass').value.trim();
+
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        window.location.assign('employee-dashboard.html');
+      } catch (err) {
+        alert("Employee login failed: " + err.message);
+        loginBtn.disabled = false;
+        loginBtn.innerText = "Sign In";
+      }
+    });
+  </script>
+</body>
+</html>

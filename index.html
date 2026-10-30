@@ -1,0 +1,241 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JalNetra – Water Management Platform</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --hero-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --bg-body: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius-btn: 9999px;
+      --radius-card: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 40px; }
+
+    /* Top Nav Header */
+    header {
+      background-color: #0f172a;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      z-index: 1000;
+    }
+    .logo { color: #ffffff; font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+    .logo span { color: var(--primary); }
+
+    /* Dropdown for Login */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .nav-btn {
+      background-color: var(--primary);
+      color: #ffffff;
+      padding: 8px 20px;
+      border-radius: var(--radius-btn);
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-btn:hover { background-color: var(--primary-hover); }
+
+    .dropdown::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: 12px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      background-color: #ffffff;
+      min-width: 200px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+      border-radius: 10px;
+      overflow: hidden;
+      z-index: 2000;
+      border: 1px solid var(--border-color);
+    }
+
+    .dropdown-content a {
+      color: var(--text-main);
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s, color 0.2s;
+    }
+    .dropdown-content a:hover {
+      background-color: #f1f5f9;
+      color: var(--primary);
+    }
+
+    .dropdown:hover .dropdown-content,
+    .dropdown.active .dropdown-content {
+      display: block;
+    }
+
+    /* Hero Banner */
+    .hero {
+      background: var(--hero-bg);
+      color: #ffffff;
+      text-align: center;
+      padding: 4.5rem 1.5rem;
+    }
+    .hero h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 0.75rem; letter-spacing: -0.025em; }
+    .hero h1 span { color: var(--primary); }
+    .hero p { color: #94a3b8; font-size: 1.05rem; max-width: 600px; margin: 0 auto; }
+
+    /* Body Layout */
+    .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+    .section-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 24px; }
+    
+    /* Responsive Grid for All 4 Services */
+    .grid { 
+      display: grid; 
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+      gap: 20px; 
+    }
+    
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+    .card-category { font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 8px; }
+    .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; color: var(--text-main); }
+    .card-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 20px; }
+    
+    .btn-card {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background-color: #f1f5f9;
+      color: var(--primary);
+      padding: 10px 0;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .btn-card:hover { background-color: #e0e7ff; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">Jal<span>Netra</span></a>
+    
+    <!-- Login Menu -->
+    <div class="dropdown" id="loginDropdown">
+      <button class="nav-btn" id="loginBtn">Login</button>
+      <div class="dropdown-content">
+        <a href="admin.html">Authority Admin Login</a>
+        <a href="employee-login.html">Staff Login</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Where Water Meets Intelligence</h1>
+    <p>A community-focused digital platform to view water schedules, quality metrics, and track complaints transparently.</p>
+  </section>
+
+  <div class="container">
+    <h2 class="section-title">Services</h2>
+    
+    <div class="grid">
+      <!-- Service 1: Find Authority -->
+      <div class="card">
+        <div>
+          <div class="card-category">Locality Lookup</div>
+          <div class="card-title">Find Your Water Authority</div>
+          <div class="card-desc">Locate your municipal water department or board to view schedules, notices, and quality readings.</div>
+        </div>
+        <a href="find-authority.html" class="btn-card">Search Authorities</a>
+      </div>
+
+      <!-- Service 2: Register Issue -->
+      <div class="card">
+        <div>
+          <div class="card-category">Grievance Redressal</div>
+          <div class="card-title">Register an Issue</div>
+          <div class="card-desc">Report water supply issues, pipe leakages, low pressure, or contamination without login.</div>
+        </div>
+        <a href="register-complaint.html" class="btn-card">File Complaint</a>
+      </div>
+
+      <!-- Service 3: Track Status -->
+      <div class="card">
+        <div>
+          <div class="card-category">Real-time Progress</div>
+          <div class="card-title">Track Issue Status</div>
+          <div class="card-desc">Enter your unique reference tracking code (e.g., JN-2026-000101) to check repair progress.</div>
+        </div>
+        <a href="track-complaint.html" class="btn-card">Track Complaint</a>
+      </div>
+
+      <!-- Service 4: Create Authority -->
+      <div class="card">
+        <div>
+          <div class="card-category">Platform Admin</div>
+          <div class="card-title">Create Water Authority</div>
+          <div class="card-desc">Register and onboard a new water management authority or municipal board to the platform.</div>
+        </div>
+        <a href="create-authority.html" class="btn-card">Register Authority</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const dropdown = document.getElementById('loginDropdown');
+    const loginBtn = document.getElementById('loginBtn');
+
+    loginBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!dropdown.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    });
+  </script>
+</body>
+</html>

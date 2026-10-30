@@ -1,0 +1,208 @@
+<!-- create-authority.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Authority - JalNetra</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --hero-bg: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --bg-body: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --radius-btn: 9999px;
+      --radius-card: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg-body); color: var(--text-main); padding-bottom: 40px; }
+
+    /* Header Nav */
+    header {
+      background-color: #0f172a;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .logo { color: #ffffff; font-size: 1.25rem; font-weight: 700; text-decoration: none; }
+    .logo span { color: var(--primary); }
+    .nav-link { color: #cbd5e1; text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+    .nav-link:hover { color: #ffffff; }
+
+    /* Hero Banner */
+    .hero {
+      background: var(--hero-bg);
+      color: #ffffff;
+      text-align: center;
+      padding: 3rem 1.5rem;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.025em; }
+
+    /* Form Container */
+    .container { max-width: 580px; margin: 30px auto; padding: 0 20px; }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 32px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+    .form-group input {
+      width: 100%;
+      padding: 11px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus { border-color: var(--primary); }
+
+    .btn-submit {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: var(--radius-btn);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover { background-color: var(--primary-hover); }
+
+    .divider {
+      margin: 20px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">Home</a>
+  </header>
+
+  <section class="hero">
+    <h1>Create Authority</h1>
+  </section>
+
+  <div class="container">
+    <div class="card">
+      <form id="createAuthForm">
+        <!-- Authority Details -->
+        <div class="form-group">
+          <label>Authority Name</label>
+          <input type="text" id="authName" placeholder="e.g. Uttar Pradesh Jal Nigam" required>
+        </div>
+
+        <div class="form-group">
+          <label>State</label>
+          <input type="text" id="authState" placeholder="e.g. Uttar Pradesh" required>
+        </div>
+
+        <div class="form-group">
+          <label>City</label>
+          <input type="text" id="authCity" placeholder="e.g. Gorakhpur" required>
+        </div>
+
+        <div class="form-group">
+          <label>Contact Phone</label>
+          <input type="tel" id="authPhone" placeholder="0551-2200111" required>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Admin Credentials -->
+        <div class="form-group">
+          <label>Admin Email (Username for Login)</label>
+          <input type="email" id="adminEmail" placeholder="admin@upjn.org" required>
+        </div>
+
+        <div class="form-group">
+          <label>Admin Password</label>
+          <input type="password" id="adminPassword" placeholder="Minimum 6 characters" minlength="6" required>
+        </div>
+
+        <button type="submit" id="submitBtn" class="btn-submit">Register Authority</button>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getAuth, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { db, auth } from './firebase.js';
+
+    document.getElementById('createAuthForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Registering...";
+
+      const name = document.getElementById('authName').value.trim();
+      const state = document.getElementById('authState').value.trim();
+      const city = document.getElementById('authCity').value.trim();
+      const phone = document.getElementById('authPhone').value.trim();
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value.trim();
+
+      try {
+        // 1. Create Authority Document in Firestore
+        const authDoc = await addDoc(collection(db, "authorities"), {
+          name: name,
+          state: state,
+          city: city,
+          email: email,
+          phone: phone,
+          created_at: serverTimestamp()
+        });
+
+        // 2. Create Authority Admin User in Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+        // 3. Register user metadata in Firestore
+        await addDoc(collection(db, "users"), {
+          uid: userCredential.user.uid,
+          email: email,
+          role: "authority_admin",
+          authority_id: authDoc.id,
+          created_at: serverTimestamp()
+        });
+
+        // 4. Sign out the newly created user so admin.html shows the clean login screen
+        await signOut(auth);
+
+        alert("Authority registered successfully! Redirecting to login page...");
+        
+        // 5. Redirect to Authority Admin Login Page
+        window.location.assign("admin.html");
+
+      } catch (err) {
+        alert("Error registering authority: " + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Register Authority";
+      }
+    });
+  </script>
+</body>
+</html>
